@@ -3,8 +3,12 @@
 #include <drivers/uart.h>
 #include <syscon/syscon.h>
 #include <kernel/panic.h>
+#include <kernel/memory.h>
 
 void kmain() {
-    kprint("Hello, OS World!\n");
+    kputs("Hello, OS World!");
+    kputs("-------------------");
+    knewline();
+    page_init();
     poweroff();
 }
