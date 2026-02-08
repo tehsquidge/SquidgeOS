@@ -6,6 +6,5 @@
 
 void kmain() {
     kprint("Hello, OS World!\n");
-    kpanic_force();
     poweroff();
 }

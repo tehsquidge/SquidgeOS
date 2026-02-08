@@ -9,11 +9,8 @@ void kpanic(const char *reason){
 }
 
 void kpanic_force() {
-    // 1. Immediate Output
     kprint("\n!!! FORCE PANIC !!!\n");
 
-    // 2. Trigger a hardware breakpoint or illegal instruction
-    // This allows a debugger (GDB) to stop exactly here.
     // 'ebreak' is the standard RISC-V way to trigger a debug trap.
     __asm__ volatile("ebreak");
 
