@@ -9,7 +9,7 @@ OUTPUT_DIR = output
 
 # Flags
 # Added -O0 for easier debugging and -g for symbols
-CFLAGS = -Wall -Wextra -ffreestanding -nostdlib -mcmodel=medany -Iinclude -O0 -g
+CFLAGS = -Wall -Wextra -ffreestanding -nostdlib -mcmodel=medany -Iinclude -Isrc -O0 -g
 LDFLAGS = -T linker.ld
 
 # 1. Find sources
