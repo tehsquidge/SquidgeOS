@@ -13,7 +13,7 @@ RISC-V Operating System.
     - [x] Splitting of large blocks.
     - [x] Doubly-linked list headers.
     - [x] Bidirectional coalescing (Iterative).
-- [ ] **String Library**: Complete `lib/string.c` (`memset`, `memcpy`, `strcmp`, `strlen`).
+- x ] **String Library**: Complete `lib/string.c` (`memset`, `memcpy`, `strcmp`, `strlen`).
 - [x] **Formatted Printing**: Robust `kprintf` implementation for hex and decimal.
 
 ### Phase 2: Hardware Interfacing & Traps
