@@ -182,7 +182,6 @@ void test_memory_stress() {
     uint32_t seed = 0xACE2026; // Example seed
 
     for (int i = 0; i < 1000; i++) {
-		kprintf("Iteration %d\n", i);
         // 1. Randomly allocate or free
         int idx = (seed >> 16) % 50;
         if (ptrs[idx] == NULL) {
@@ -229,8 +228,12 @@ void heap_stats() {
     }
 
     kprint("--- Kernel Heap Stats ---\n");
-    kprint("Used: "); kprint_hex(used_size); kprint(" bytes in "); kprint_int(used_blocks); kprint(" blocks\n");
-    kprint("Free: "); kprint_hex(free_size); kprint(" bytes in "); kprint_int(free_blocks); kprint(" blocks\n");
-    kprint("Total metadata overhead: "); kprint_int((used_blocks + free_blocks) * sizeof(HeapHeader)); kprint(" bytes\n");
+	kprintf("Page Size: %d bytes", PAGE_SIZE);
+	kprintf("HeapHeader size: %d bytes", sizeof(HeapHeader));
+	kprintf("Pages allocated: %d", (used_size + free_size + used_blocks * sizeof(HeapHeader) + free_blocks * sizeof(HeapHeader)) / PAGE_SIZE);
+    kprintf("Used: %x bytes in %d blocks",used_size, used_blocks);
+	kprintf("Used (with overhead): %x bytes", used_size + used_blocks * sizeof(HeapHeader));
+	kprintf("Free: %x bytes in %d blocks", free_size, free_blocks);
+    kprintf("Total metadata overhead: %d bytes", ((used_blocks + free_blocks) * sizeof(HeapHeader)));
     kprint("-------------------------\n");
 }
