@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include "drivers/uart.h"
 #include "memory.h"
-#include "panic.h"
+#include "interrupts.h"
 
 HeapHeader *heap_free_list;
 extern uint8_t _heap_start[]; // named in the linker script

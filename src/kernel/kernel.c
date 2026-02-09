@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <drivers/uart.h>
 #include <syscon/syscon.h>
-#include <kernel/panic.h>
+#include <kernel/interrupts.h>
 #include <kernel/memory.h>
 
 void kmain()
