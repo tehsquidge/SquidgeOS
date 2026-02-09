@@ -56,16 +56,15 @@ void kprint_float(float num) {
 
 void kprint_hex(uint64_t val) {
     char *digits = "0123456789ABCDEF";
-    char buffer[16]; // 64-bit hex is 16 chars
+    char buffer[17]; // 64-bit hex is 16 chars
+	buffer[16] = '\0'; // Null-terminate the string
     
     // We process from right to left
     for (int i = 15; i >= 0; i--) {
         buffer[i] = digits[val & 0xF];
         val >>= 4;
     }
-
 	kprint(buffer);    
-
 }
 
 void knewline(void) {
@@ -118,5 +117,6 @@ void kprintf(const char *format, ...) {
 			kputchar(*p);
 		}
 	}
+	va_end(args);
 	knewline();
 }
