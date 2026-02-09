@@ -6,7 +6,7 @@
 #include <kernel/memory.h>
 
 void kmain() {
-    kprintf("Hello, from %s v%f!" , "SquidgeOS", 0.5);
+    kprintf("Hello, from %s!" , "SquidgeOS");
     kputs("-------------------");
     knewline();
     page_init();
