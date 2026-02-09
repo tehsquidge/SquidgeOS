@@ -28,7 +28,7 @@ SECTIONS
     /* Keep the stack at the very end to prevent it from overwriting code if it overflows */
     . = ALIGN(16);
     PROVIDE(_stack_bottom = .);
-    . += 4096; 
+    . += 16384; /* 16k stack */
     PROVIDE(stack_top = .);
 
    . = ALIGN(4K);
