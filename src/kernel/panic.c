@@ -49,7 +49,7 @@ void handle_trap() {
         default:
             kprintf("Reason: Unknown Exception Code %d\n", cause);
     }
-    kprintf("Faulting Address (if applicable): 0x%p\n", mtval);
+    kprintf("Faulting Address (if applicable): %x\n", mtval);
 
     heap_stats();
 
