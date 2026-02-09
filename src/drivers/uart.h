@@ -7,6 +7,7 @@ int kputchar(int ch);
 void kprint_hex(uint64_t val);
 void kprint_int(int num);
 void kprintf(const char *format, ...);
+void kprint_float(float num);
 void knewline();
 void kputs(const char *str);
 void kprint(const char *str);
