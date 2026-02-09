@@ -52,6 +52,7 @@ void *kmalloc(size_t size) {
 		header->size = PAGE_SIZE - sizeof(HeapHeader);
 		header->is_free = 1;
 		header->next = NULL;
+		header->prev = NULL;
 		
 		heap_free_list = header;
 	}
@@ -73,6 +74,10 @@ void *kmalloc(size_t size) {
 		header->size = PAGE_SIZE - sizeof(HeapHeader);
 		header->is_free = 1;
 		header->next = heap_free_list;
+		header->prev = NULL;
+		if(heap_free_list) {
+			heap_free_list->prev = header;
+		}
 		heap_free_list = header;
 		current = header;
 	}
@@ -94,8 +99,12 @@ void *kmalloc(size_t size) {
     	}
 		new_header->size = current->size - size - sizeof(HeapHeader);
 		new_header->is_free = 1;
-		new_header->next = current->next;
 
+		new_header->next = current->next;
+		new_header->prev = current;
+		if(current->next) {
+			current->next->prev = new_header;
+		}
 		current->size = size;
 		current->next = new_header;
 	}
@@ -112,22 +121,27 @@ void kfree(void *ptr) {
 	}
 	header->is_free = 1;
 
-    HeapHeader *temp = heap_free_list;
-    while (temp != NULL) {
-        if (temp->is_free) {
-            kcoalesce(temp);
-        }
-        temp = temp->next;
-    }
+    kcoalesce(header);
 }
 
 void kcoalesce(HeapHeader *header) {
-	if(!header || !header->next || !header->is_free) return;
-	uintptr_t current_end = (uintptr_t)header + sizeof(HeapHeader) + header->size;
-	if (current_end == (uintptr_t)header->next && header->next->is_free) {
-		header->size += sizeof(HeapHeader) + header->next->size;
-		header->next = header->next->next;
-		kcoalesce(header);
+	if(!header || !header->is_free) return;
+	//merge backward
+	while (header->prev && header->prev->is_free) {
+		header = header->prev;
+	}
+	//merge forward
+	while (header->next && header->next->is_free){
+		uintptr_t current_end = (uintptr_t)header + sizeof(HeapHeader) + header->size;
+		if (current_end == (uintptr_t)header->next) {
+			header->size += sizeof(HeapHeader) + header->next->size;
+			header->next = header->next->next;
+			if(header->next) {
+				header->next->prev = header;
+			}
+		} else {
+			break;
+		}
 	}
 }
 
@@ -164,13 +178,13 @@ void test_memory_alignment() {
 void test_memory_stress() {
     kprintf("Starting Stress Test...\n");
 	heap_stats();
-    void *ptrs[50] = {0}; // Track allocated pointers
+    void *ptrs[100] = {0}; // Track allocated pointers
     uint32_t seed = 0xACE2026; // Example seed
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 1000; i++) {
 		kprintf("Iteration %d\n", i);
         // 1. Randomly allocate or free
-        int idx = i % 50;
+        int idx = (seed >> 16) % 50;
         if (ptrs[idx] == NULL) {
             size_t size = (seed % 256) + 1;
             ptrs[idx] = kmalloc(size);
@@ -183,7 +197,16 @@ void test_memory_stress() {
         seed = (seed * 1103515245 + 12345) & 0x7fffffff;
     }
     kprintf("Stress Test Finished. Check heap_stats() for sanity.\n");
+	kprintf("HeadHeader size: %d bytes\n", sizeof(HeapHeader));
     heap_stats();
+	kprintf("Cleaning up remaining allocations...\n");
+	for (int i = 0; i < 100; i++) {
+		if (ptrs[i] != NULL) {
+			kfree(ptrs[i]);
+			ptrs[i] = NULL;
+		}
+	}
+	heap_stats();
 }
 
 void heap_stats() {

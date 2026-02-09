@@ -11,6 +11,7 @@ typedef struct HeapHeader {
 	size_t size;
 	int is_free;
 	struct HeapHeader *next;
+    struct HeapHeader *prev;
 } HeapHeader;
 
 static struct Page *free_list = NULL;
