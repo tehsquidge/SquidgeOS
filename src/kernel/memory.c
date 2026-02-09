@@ -81,7 +81,6 @@ void *kmalloc(size_t size)
 
 	if (current == NULL)
 	{
-		// No suitable block found, allocate a new page
 		HeapHeader *header = (HeapHeader *)page_alloc();
 		header->size = PAGE_SIZE - sizeof(HeapHeader);
 		header->is_free = 1;
@@ -95,7 +94,6 @@ void *kmalloc(size_t size)
 		current = header;
 	}
 
-	// Now, current is a block that can be used
 	if (!current)
 	{
 		return NULL;
@@ -103,12 +101,10 @@ void *kmalloc(size_t size)
 
 	current->is_free = 0;
 
-	// If the block is larger than needed, split it
 	size_t min_split_size = sizeof(HeapHeader) + 16;
 	if (current->size >= size + min_split_size)
 	{
 		HeapHeader *new_header = (HeapHeader *)((uint8_t *)current + sizeof(HeapHeader) + size);
-		// Safety check: if new_header address is wild, abort!
 		if ((uintptr_t)new_header < 0x80000000 || (uintptr_t)new_header > 0x88000000)
 		{
 			kpanic("Splitting created invalid pointer!");
@@ -148,7 +144,7 @@ void kcoalesce(HeapHeader *header)
 {
 	if (!header || !header->is_free)
 		return;
-	// merge backward
+	// jump backward
 	while (header->prev && header->prev->is_free)
 	{
 		header = header->prev;
@@ -214,18 +210,16 @@ void test_memory_stress()
 {
 	kprintf("Starting Stress Test...\n");
 	heap_stats();
-	void *ptrs[100] = {0};	   // Track allocated pointers
-	uint32_t seed = 0xACE2026; // Example seed
+	void *ptrs[100] = {0};
+	uint32_t seed = 0xACE2026;
 
 	for (int i = 0; i < 1000; i++)
 	{
-		// 1. Randomly allocate or free
 		int idx = (seed >> 16) % 50;
 		if (ptrs[idx] == NULL)
 		{
 			size_t size = (seed % 256) + 1;
 			ptrs[idx] = kmalloc(size);
-			// Optional: fill with data to check integrity later
 		}
 		else
 		{
