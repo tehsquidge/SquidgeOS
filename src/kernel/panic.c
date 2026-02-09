@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <drivers/uart.h>
 #include <syscon/syscon.h>
+#include "memory.h"
 
 void kpanic(const char *reason){
     kputs("\n!!! PANIC !!!\n");
@@ -49,6 +50,8 @@ void handle_trap() {
             kprintf("Reason: Unknown Exception Code %d\n", cause);
     }
     kprintf("Faulting Address (if applicable): 0x%p\n", mtval);
+
+    heap_stats();
 
     poweroff();
 }
