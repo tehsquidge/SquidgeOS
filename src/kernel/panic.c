@@ -32,6 +32,10 @@ void handle_trap() {
     unsigned long cause;
     __asm__ volatile("csrr %0, mcause" : "=r"(cause));
 
+    // fault address (if applicable)
+    uintptr_t mtval;
+    asm volatile("csrr %0, mtval" : "=r"(mtval));
+
     switch(cause) {
         case 0: kprint("Reason: Instruction Address Misaligned\n"); break;
         case 1: kprint("Reason: Instruction Access Fault\n"); break;
@@ -44,6 +48,7 @@ void handle_trap() {
         default:
             kprintf("Reason: Unknown Exception Code %d\n", cause);
     }
+    kprintf("Faulting Address (if applicable): 0x%p\n", mtval);
 
     poweroff();
 }

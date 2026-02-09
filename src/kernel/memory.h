@@ -22,5 +22,8 @@ void *kmalloc(size_t size);
 void kfree(void *ptr);
 void kcoalesce(HeapHeader *header);
 void test_memory_integrity();
+void test_memory_alignment();
+void test_memory_stress();
+void heap_stats();
 
 #endif

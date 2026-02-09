@@ -17,6 +17,7 @@ void kmain() {
     //}
 
     test_memory_integrity();
-
+    test_memory_alignment();
+    test_memory_stress();
     poweroff();
 }

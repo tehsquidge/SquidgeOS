@@ -72,13 +72,8 @@ void *kmalloc(size_t size) {
 		HeapHeader* header = (HeapHeader *)page_alloc();
 		header->size = PAGE_SIZE - sizeof(HeapHeader);
 		header->is_free = 1;
-		header->next = NULL;
-
-		if (prev) {
-			prev->next = header;
-		} else {
-			heap_free_list = header;
-		}
+		header->next = heap_free_list;
+		heap_free_list = header;
 		current = header;
 	}
 
@@ -93,6 +88,10 @@ void *kmalloc(size_t size) {
 	size_t min_split_size = sizeof(HeapHeader) + 16;
 	if (current->size >= size + min_split_size) {
 		HeapHeader *new_header = (HeapHeader *)((uint8_t *)current + sizeof(HeapHeader) + size);
+		// Safety check: if new_header address is wild, abort!
+	    if ((uintptr_t)new_header < 0x80000000 || (uintptr_t)new_header > 0x88000000) {
+        	kpanic("Splitting created invalid pointer!");
+    	}
 		new_header->size = current->size - size - sizeof(HeapHeader);
 		new_header->is_free = 1;
 		new_header->next = current->next;
@@ -113,7 +112,13 @@ void kfree(void *ptr) {
 	}
 	header->is_free = 1;
 
-	kcoalesce(header);
+    HeapHeader *temp = heap_free_list;
+    while (temp != NULL) {
+        if (temp->is_free) {
+            kcoalesce(temp);
+        }
+        temp = temp->next;
+    }
 }
 
 void kcoalesce(HeapHeader *header) {
@@ -141,4 +146,76 @@ void test_memory_integrity() {
     }
     kfree(a);
     kfree(b);
+}
+
+void test_memory_alignment() {
+	kprint("Running Alignment Test...\n");
+	for (int i = 1; i <= 64; i++) {
+		void *ptr = kmalloc(i);
+		if (((uintptr_t)ptr % 8) != 0) {
+			kprint("Misaligned allocation detected!\n");
+			return;
+		}
+		kfree(ptr);
+	}
+	kprint("All allocations are properly aligned!\n");
+}
+
+void test_memory_stress() {
+    kprintf("Starting Stress Test...\n");
+	heap_stats();
+    void *ptrs[50] = {0}; // Track allocated pointers
+    uint32_t seed = 0xACE2026; // Example seed
+
+    for (int i = 0; i < 100; i++) {
+		kprintf("Iteration %d\n", i);
+        // 1. Randomly allocate or free
+        int idx = i % 50;
+        if (ptrs[idx] == NULL) {
+            size_t size = (seed % 256) + 1;
+            ptrs[idx] = kmalloc(size);
+            // Optional: fill with data to check integrity later
+        } else {
+            kfree(ptrs[idx]);
+            ptrs[idx] = NULL;
+        }
+        // Simple LCG to "randomize" seed
+        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    }
+    kprintf("Stress Test Finished. Check heap_stats() for sanity.\n");
+    heap_stats();
+}
+
+void heap_stats() {
+    size_t free_size = 0;
+    size_t used_size = 0;
+    size_t free_blocks = 0;
+    size_t used_blocks = 0;
+
+    HeapHeader *current = heap_free_list;
+
+    while (current != NULL) {
+        if (current->is_free) {
+            free_size += current->size;
+            free_blocks++;
+        } else {
+            used_size += current->size;
+            used_blocks++;
+        }
+        current = current->next;
+    }
+
+    kprint("--- Kernel Heap Stats ---\n");
+    kprint("Used: "); kprint_hex(used_size); kprint(" bytes in "); kprint_int(used_blocks); kprint(" blocks\n");
+    kprint("Free: "); kprint_hex(free_size); kprint(" bytes in "); kprint_int(free_blocks); kprint(" blocks\n");
+    kprint("Total metadata overhead: "); kprint_int((used_blocks + free_blocks) * sizeof(HeapHeader)); kprint(" bytes\n");
+    kprint("-------------------------\n");
+}
+
+void *memset(void *s, int c, size_t n) {
+    unsigned char *p = s;
+    while (n--) {
+        *p++ = (unsigned char)c;
+    }
+    return s;
 }
