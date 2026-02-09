@@ -11,10 +11,12 @@ void kmain() {
     knewline();
     page_init();
 
-    kprint("Stress testing memory...\n");
-    while(1) {
-        void *p = page_alloc();
-    }
+    //kprint("Stress testing memory...\n");
+    //while(1) {
+    //    void *p = page_alloc();
+    //}
+
+    test_memory_integrity();
 
     poweroff();
 }

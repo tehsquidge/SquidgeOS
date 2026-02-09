@@ -1,8 +1,26 @@
 #ifndef KMEMORY_H
 #define KMEMORY_H
 
+#define PAGE_SIZE 4096
+
+typedef struct Page {
+	struct Page *next;
+} Page;
+
+typedef struct HeapHeader {
+	size_t size;
+	int is_free;
+	struct HeapHeader *next;
+} HeapHeader;
+
+static struct Page *free_list = NULL;
+
 void page_init();
 void page_free(void *addr);
 void *page_alloc();
+void *kmalloc(size_t size);
+void kfree(void *ptr);
+void kcoalesce(HeapHeader *header);
+void test_memory_integrity();
 
 #endif
