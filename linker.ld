@@ -30,4 +30,7 @@ SECTIONS
     PROVIDE(_stack_bottom = .);
     . += 4096; 
     PROVIDE(stack_top = .);
+
+   . = ALIGN(4K);
+   _heap_start =.;
 }

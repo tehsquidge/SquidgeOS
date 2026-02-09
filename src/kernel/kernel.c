@@ -10,5 +10,14 @@ void kmain() {
     kputs("-------------------");
     knewline();
     page_init();
+
+    kprint("Stress testing memory...\n");
+    while(1) {
+        void *p = page_alloc();
+        if (p == NULL) {
+            kpanic("Expected OOM reached!");
+        }
+    }
+
     poweroff();
 }

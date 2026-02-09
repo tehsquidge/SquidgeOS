@@ -4,6 +4,7 @@
 #include <syscon/syscon.h>
 
 void kpanic(const char *reason){
+    kprint("\n!!! PANIC!!!\n");
 	kprint(reason);
 	poweroff();
 }
