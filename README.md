@@ -1,6 +1,20 @@
 # SquidgeOS
 
-RISC-V Operating System.
+A monolithic hobbyist kernel written in C and Assembly for the RISC-V 64-bit architecture.
+
+## Project Overview
+The Gemini Kernel is a from-scratch operating system project designed to explore low-level systems programming, memory management, and hardware-software interfacing.
+
+### Target Architecture
+* **Architecture**: RISC-V (RV64GC)
+* **Privilege Modes**: Machine (M) for boot, with transitions to Supervisor (S) and User (U) planned.
+* **Hardware Interface**: Control and Status Registers (CSRs) for trap management and system state.
+
+### Platform & Emulation
+* **Emulator**: QEMU (`virt` machine)
+* **RAM**: Starts at `0x80000000`
+* **Console**: UART (NS16550A) for serial I/O.
+* **Interrupts**: CLINT (Core Local Interrupter) and PLIC (Platform-Level Interrupt Controller).
 
 ## Kernel Development Roadmap
 
@@ -13,7 +27,7 @@ RISC-V Operating System.
     - [x] Splitting of large blocks.
     - [x] Doubly-linked list headers.
     - [x] Bidirectional coalescing (Iterative).
-- x ] **String Library**: Complete `lib/string.c` (`memset`, `memcpy`, `strcmp`, `strlen`).
+- [x] **String Library**: Complete `lib/string.c` (`memset`, `memcpy`, `strcmp`, `strlen`).
 - [x] **Formatted Printing**: Robust `kprintf` implementation for hex and decimal.
 
 ### Phase 2: Hardware Interfacing & Traps
