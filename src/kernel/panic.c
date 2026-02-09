@@ -4,8 +4,9 @@
 #include <syscon/syscon.h>
 
 void kpanic(const char *reason){
-    kprint("\n!!! PANIC!!!\n");
-	kprint(reason);
+    kputs("\n!!! PANIC !!!\n");
+	kputs(reason);
+    kputs("\n!!! PANIC !!!\n");
 	poweroff();
 }
 
@@ -15,10 +16,10 @@ void kpanic_force() {
     // 'ebreak' is the standard RISC-V way to trigger a debug trap.
     __asm__ volatile("ebreak");
 
-    // 3. If no debugger is attached or we continue, kill the VM
+    kprint("Force panic falled. Power off. \n");
     poweroff();
 
-    // 4. Final halt
+    kprint("Force panic falled. Power off failed. sleep until interupt. \n");
     while(1) {
         __asm__ volatile("wfi");
     }
