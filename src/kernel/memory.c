@@ -67,7 +67,6 @@ void *kmalloc(size_t size)
 	}
 
 	HeapHeader *current = heap_free_list;
-	HeapHeader *prev = NULL;
 
 	while (current != NULL)
 	{
@@ -75,7 +74,6 @@ void *kmalloc(size_t size)
 		{
 			break;
 		}
-		prev = current;
 		current = current->next;
 	}
 

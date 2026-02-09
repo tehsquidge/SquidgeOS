@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <drivers/uart.h>
+#include <lib/string.h>
 
 void uart_put(size_t base_addr, uint8_t data)
 {
@@ -25,6 +26,7 @@ void kprint(const char *str)
 void kprint_int(int num)
 {
 	char buffer[21];
+	memset(buffer, 0, sizeof(buffer));
 	int i = 0;
 	if (num == 0)
 	{
@@ -62,17 +64,17 @@ void kprint_float(float num)
 	{
 		frac_part *= 10.0f;
 	}
-	int fraction = (int)(frac_part + 0.5f); // Round to nearest
+	int fraction = (int)(frac_part + 0.5f);
 	kprint_int(fraction);
 }
 
 void kprint_hex(uint64_t val)
 {
 	char *digits = "0123456789ABCDEF";
-	char buffer[17];   // 64-bit hex is 16 chars
-	buffer[16] = '\0'; // Null-terminate the string
+	char buffer[17]; //+1 for null terminator
+	memset(buffer, 0, sizeof(buffer));
+	buffer[16] = '\0';
 
-	// We process from right to left
 	for (int i = 15; i >= 0; i--)
 	{
 		buffer[i] = digits[val & 0xF];
@@ -98,7 +100,7 @@ void kprintf(const char *format, ...)
 	va_list args;
 	va_start(args, format);
 
-	for (char *p = format; *p != '\0'; p++)
+	for (const char *p = format; *p != '\0'; p++)
 	{
 		if (*p == '%')
 		{
@@ -124,8 +126,8 @@ void kprintf(const char *format, ...)
 				break;
 			}
 			case 'x': // Hex
-			case 'p':
-			{ // Pointer
+			case 'p': // Pointer
+			{ 
 				uint64_t x = va_arg(args, uint64_t);
 				kprint_hex(x);
 				break;
