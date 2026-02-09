@@ -64,6 +64,7 @@ void kprint_hex(uint64_t val) {
         buffer[i] = digits[val & 0xF];
         val >>= 4;
     }
+	kprint("0x");
 	kprint(buffer);    
 }
 
