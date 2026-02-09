@@ -5,17 +5,12 @@
 #include <kernel/panic.h>
 #include <kernel/memory.h>
 
-void kmain() {
-    kprintf("Hello, from %s!" , "SquidgeOS");
+void kmain()
+{
+    kprintf("Hello, from %s!", "SquidgeOS");
     kputs("-------------------");
     knewline();
     page_init();
-
-    //kprint("Stress testing memory...\n");
-    //while(1) {
-    //    void *p = page_alloc();
-    //}
-
     test_memory_integrity();
     test_memory_alignment();
     test_memory_stress();

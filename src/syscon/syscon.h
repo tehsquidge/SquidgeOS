@@ -6,7 +6,7 @@
 
 // Magic values for the Sifive Test device
 #define SYSCON_POWEROFF 0x5555
-#define SYSCON_REBOOT   0x7777
+#define SYSCON_REBOOT 0x7777
 
 void poweroff(void);
 void reboot(void);

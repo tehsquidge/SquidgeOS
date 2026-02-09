@@ -3,18 +3,20 @@
 #include "syscon.h"
 #include "drivers/uart.h"
 
-void poweroff(void) {
+void poweroff(void)
+{
 	knewline();
 	kputs("-------");
 	knewline();
-  	kputs("Poweroff requested");
+	kputs("Poweroff requested");
 	*(volatile uint32_t *)SYSCON_ADDR = SYSCON_POWEROFF;
 }
 
-void reboot(void) {
+void reboot(void)
+{
 	knewline();
 	kputs("-------");
 	knewline();
-  	kputs("Reboot requested");
+	kputs("Reboot requested");
 	*(volatile uint32_t *)SYSCON_ADDR = SYSCON_REBOOT;
 }

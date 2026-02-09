@@ -3,15 +3,17 @@
 
 #define PAGE_SIZE 4096
 
-typedef struct Page {
+typedef struct Page
+{
 	struct Page *next;
 } Page;
 
-typedef struct HeapHeader {
+typedef struct HeapHeader
+{
 	size_t size;
 	int is_free;
 	struct HeapHeader *next;
-    struct HeapHeader *prev;
+	struct HeapHeader *prev;
 } HeapHeader;
 
 static struct Page *free_list = NULL;
