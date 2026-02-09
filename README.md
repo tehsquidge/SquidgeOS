@@ -13,14 +13,14 @@ RISC-V Operating System.
     - [x] Splitting of large blocks.
     - [x] Doubly-linked list headers.
     - [x] Bidirectional coalescing (Iterative).
-- [~] **String Library**: Complete `lib/string.c` (`memset`, `memcpy`, `strcmp`, `strlen`).
-- [~] **Formatted Printing**: Robust `kprintf` implementation for hex and decimal.
+- [ ] **String Library**: Complete `lib/string.c` (`memset`, `memcpy`, `strcmp`, `strlen`).
+- [x] **Formatted Printing**: Robust `kprintf` implementation for hex and decimal.
 
 ### Phase 2: Hardware Interfacing & Traps
-- [/] **Trap Handling**: 
-    - [/] Setup `mtvec` (Machine Trap Vector).
+- [ ] **Trap Handling**: 
+    - [x] Setup `mtvec` (Machine Trap Vector).
     - [ ] Assembly "trampoline" to save/restore registers.
-    - [/] C dispatcher for exceptions and interrupts.
+    - [ ] C dispatcher for exceptions and interrupts.
 - [ ] **Timer Interrupts**: 
     - [ ] Interface with RISC-V CLINT (Core Local Interrupter).
     - [ ] Implement a system heartbeat (ticks).
