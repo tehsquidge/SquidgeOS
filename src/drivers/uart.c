@@ -103,7 +103,6 @@ void kprintf(const char *format, ...) {
 				case 'x':   // Hex
 				case 'p': { // Pointer
 					uint64_t x = va_arg(args, uint64_t);
-					kputchar('0'); kputchar('x');
 					kprint_hex(x);
 					break;
 				}
