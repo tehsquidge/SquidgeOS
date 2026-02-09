@@ -39,7 +39,7 @@ void page_free(void *addr) {
 	free_list = p;
 }
 
-void *page_alloc() { {
+void *page_alloc() {
 	if (free_list == NULL) {
 		kpanic("No free pages!");
 	}
@@ -53,4 +53,8 @@ void *page_alloc() { {
 
 	return (void *)p;
 }
+
+void kmalloc(size_t size) {
+	//check for existing heap
+	
 }
