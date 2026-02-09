@@ -211,11 +211,3 @@ void heap_stats() {
     kprint("Total metadata overhead: "); kprint_int((used_blocks + free_blocks) * sizeof(HeapHeader)); kprint(" bytes\n");
     kprint("-------------------------\n");
 }
-
-void *memset(void *s, int c, size_t n) {
-    unsigned char *p = s;
-    while (n--) {
-        *p++ = (unsigned char)c;
-    }
-    return s;
-}
