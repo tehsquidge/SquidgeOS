@@ -208,8 +208,9 @@ void test_memory_alignment()
 
 void test_memory_stress()
 {
-	kprintf("Starting Stress Test...\n");
+	kprint("\nPre-stress heap stats:\n");
 	heap_stats();
+	kprintf("Starting Stress Test...\n");
 	void *ptrs[100] = {0};
 	uint32_t seed = 0xACE2026;
 

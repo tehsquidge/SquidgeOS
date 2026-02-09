@@ -7,8 +7,9 @@
 
 void kmain()
 {
+    kputs("----------------------");
     kprintf("Hello, from %s!", "SquidgeOS");
-    kputs("-------------------");
+    kputs("----------------------");
     knewline();
     page_init();
     test_memory_integrity();
