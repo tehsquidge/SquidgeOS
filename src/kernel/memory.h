@@ -16,8 +16,6 @@ typedef struct HeapHeader
 	struct HeapHeader *prev;
 } HeapHeader;
 
-static struct Page *free_list = NULL;
-
 void page_init();
 void page_free(void *addr);
 void *page_alloc();

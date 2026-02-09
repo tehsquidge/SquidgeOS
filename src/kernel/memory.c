@@ -4,6 +4,8 @@
 #include "memory.h"
 #include "interrupts.h"
 
+static struct Page *free_list = NULL;
+
 HeapHeader *heap_free_list;
 extern uint8_t _heap_start[]; // named in the linker script
 
