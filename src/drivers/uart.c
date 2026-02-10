@@ -30,10 +30,17 @@ char uart_getc()
 void uart_handle_interrupt()
 {
 	char c = uart_getc();
-	if (c != '\0')
+	switch (c)
 	{
-		// Later, this will go into a "Circular Buffer"
+	case '\r': // enter key
+		knewline();
+		break;
+	case '\0':
+		// do nowt
+		break;
+	default:
 		kputchar(c);
+		break;
 	}
 }
 
