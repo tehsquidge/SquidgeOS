@@ -1,12 +1,40 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdarg.h>
+#include <syscon/syscon.h>
 #include <drivers/uart.h>
 #include <lib/string.h>
+
+void uart_init()
+{
+	kprint("UART Drive Init...");
+	volatile uint8_t *UART_IER = (uint8_t *)(UART_ADDRESS + 1);
+	*UART_IER = 0x01; // Enable "Received Data Available" interrupt
+	kputs("OK");
+}
 
 void uart_put(size_t base_addr, uint8_t data)
 {
 	*(volatile uint8_t *)base_addr = data;
+}
+
+char uart_getc()
+{
+	if (*UART_LSR & 0x01)
+	{
+		return (char)(*UART_RBR);
+	}
+	return '\0';
+}
+
+void uart_handle_interrupt()
+{
+	char c = uart_getc();
+	if (c != '\0')
+	{
+		// Later, this will go into a "Circular Buffer"
+		kputchar(c);
+	}
 }
 
 int kputchar(int ch)
@@ -107,6 +135,11 @@ void kprintf(const char *format, ...)
 			p++;
 			switch (*p)
 			{
+			case 'c':
+			{
+				char c = (char)va_arg(args, int);
+				kputchar(c);
+			}
 			case 's':
 			{
 				char *s = va_arg(args, char *);
@@ -127,7 +160,7 @@ void kprintf(const char *format, ...)
 			}
 			case 'x': // Hex
 			case 'p': // Pointer
-			{ 
+			{
 				uint64_t x = va_arg(args, uint64_t);
 				kprint_hex(x);
 				break;

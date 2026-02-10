@@ -11,7 +11,7 @@ extern uint8_t _heap_start[]; // named in the linker script
 
 void page_init()
 {
-	kprint("Initialising page allocator.\n");
+	kprint("Initialising page allocator...");
 	uintptr_t start = ((uintptr_t)_heap_start + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
 	uintptr_t end = 0x88000000; // Default QEMU RAM limit
 
@@ -19,6 +19,7 @@ void page_init()
 	{
 		page_free((void *)addr);
 	}
+	kputs("OK");
 }
 
 void page_free(void *addr)

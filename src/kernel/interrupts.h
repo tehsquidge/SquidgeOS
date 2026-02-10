@@ -1,8 +1,10 @@
 #ifndef PANIC_H
 #define PANIC_H
 
-void kpanic(const char *reason);
+void interrupt_init();
+void kpanic(const char *);
 void kpanic_force();
+void handle_interrupt(unsigned long code);
 
 #define KASSERT(cond, msg)                                              \
     if (!(cond))                                                        \

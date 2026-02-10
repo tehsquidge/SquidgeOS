@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <drivers/uart.h>
 #include <syscon/syscon.h>
+#include <kernel/plic.h>
 #include <kernel/interrupts.h>
 #include <kernel/memory.h>
 
@@ -11,9 +12,8 @@ void kmain()
     kprintf("Hello, from %s!", "SquidgeOS");
     kputs("----------------------");
     knewline();
+    plic_init();
+    uart_init();
     page_init();
-    test_memory_integrity();
-    test_memory_alignment();
-    test_memory_stress();
-    poweroff();
+    interrupt_init();
 }
