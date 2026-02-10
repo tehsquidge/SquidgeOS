@@ -130,62 +130,66 @@ void kputs(const char *str)
 	knewline();
 }
 
+void kprintf_internal(const char *format, va_list args)
+{
+    for (const char *p = format; *p != '\0'; p++)
+    {
+        if (*p == '%')
+        {
+            p++;
+            switch (*p)
+            {
+            case 'c':
+            {
+                char c = (char)va_arg(args, int);
+                kputchar(c);
+                break;
+            }
+            case 's':
+            {
+                char *s = va_arg(args, char *);
+                kprint(s);
+                break;
+            }
+            case 'd':
+            {
+                int d = va_arg(args, int);
+                kprint_int(d);
+                break;
+            }
+            case 'f':
+            {
+                double f = va_arg(args, double);
+                kprint_float((float)f);
+                break;
+            }
+            case 'x': // Hex
+            case 'p': // Pointer
+            {
+                uint64_t x = va_arg(args, uint64_t);
+                kprint_hex(x);
+                break;
+            }
+            case '%':
+                kputchar('%');
+                break;
+            default:
+                kputchar('%');
+                kputchar(*p);
+            }
+        }
+        else
+        {
+            kputchar(*p);
+        }
+    }
+    knewline();
+}
+
 void kprintf(const char *format, ...)
 {
-	va_list args;
-	va_start(args, format);
-
-	for (const char *p = format; *p != '\0'; p++)
-	{
-		if (*p == '%')
-		{
-			p++;
-			switch (*p)
-			{
-			case 'c':
-			{
-				char c = (char)va_arg(args, int);
-				kputchar(c);
-				break;
-			}
-			case 's':
-			{
-				char *s = va_arg(args, char *);
-				kprint(s);
-				break;
-			}
-			case 'd':
-			{
-				int d = va_arg(args, int);
-				kprint_int(d);
-				break;
-			}
-			case 'f':
-			{
-				double f = va_arg(args, double);
-				kprint_float((float)f);
-				break;
-			}
-			case 'x': // Hex
-			case 'p': // Pointer
-			{
-				uint64_t x = va_arg(args, uint64_t);
-				kprint_hex(x);
-				break;
-			}
-			case '%':
-				kputchar('%');
-				break;
-			default:
-				kputchar('%');
-				kputchar(*p);
-			}
-		}
-		else
-		{
-			kputchar(*p);
-		}
-	}
-	va_end(args);
-	knewline();
+    va_list args;
+    va_start(args, format);
+    kprintf_internal(format, args);
+    va_end(args);
 }

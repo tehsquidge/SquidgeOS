@@ -16,4 +16,6 @@ void kmain()
     uart_init();
     page_init();
     interrupt_init();
+
+    kpanic_force();
 }

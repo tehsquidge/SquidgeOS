@@ -3,7 +3,7 @@
 A monolithic hobbyist kernel written in C and Assembly for the RISC-V 64-bit architecture.
 
 ## Project Overview
-The Gemini Kernel is a from-scratch operating system project designed to explore low-level systems programming, memory management, and hardware-software interfacing.
+The Squidge Kernel is a from-scratch operating system project designed to explore low-level systems programming, memory management, and hardware-software interfacing.
 
 ### Target Architecture
 * **Architecture**: RISC-V (RV64GC)

@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <drivers/uart.h>
 #include <syscon/syscon.h>
 #include <kernel/plic.h>
@@ -21,11 +22,14 @@ void interrupt_init()
     kputs("OK");
 }
 
-void kpanic(const char *reason)
+void kpanic(const char *reason, ...)
 {
+    va_list args;
+	va_start(args, reason);
     kputs("\n!!! PANIC !!!\n");
-    kputs(reason);
+    kprintf_internal(reason, args);
     kputs("\n!!! PANIC !!!\n");
+    va_end(args);
     poweroff();
 }
 
@@ -80,7 +84,7 @@ void handle_trap()
             kpanic("Reason: Illegal Instruction\n");
             break;
         case 3:
-            kpanic("Reason: Breakpoint (ebreak)\n");
+            kpanic("Reason: Breakpoint (ebreak) %s\n", "woo!");
             break;
         case 4:
             kpanic("Reason: Load Address Misaligned\n");
@@ -96,7 +100,7 @@ void handle_trap()
             break;
         default:
             break;
-            // kpanic("Reason: Unknown Exception Code %d\n", cause);
+            kpanic("Reason: Unknown Exception Code %d\n", cause);
         }
         kprintf("Faulting Address (if applicable): %x\n", mtval);
     }

@@ -2,7 +2,7 @@
 #define PANIC_H
 
 void interrupt_init();
-void kpanic(const char *);
+void kpanic(const char *, ...);
 void kpanic_force();
 void handle_interrupt(unsigned long code);
 
