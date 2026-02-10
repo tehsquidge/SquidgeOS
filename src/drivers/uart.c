@@ -139,6 +139,7 @@ void kprintf(const char *format, ...)
 			{
 				char c = (char)va_arg(args, int);
 				kputchar(c);
+				break;
 			}
 			case 's':
 			{
