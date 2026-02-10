@@ -31,14 +31,14 @@ The Squidge Kernel is a from-scratch operating system project designed to explor
 - [x] **Formatted Printing**: Robust `kprintf` implementation for hex and decimal.
 
 ### Phase 2: Hardware Interfacing & Traps
-- [ ] **Trap Handling**: 
+- [x] **Trap Handling**: 
     - [x] Setup `mtvec` (Machine Trap Vector).
-    - [ ] Assembly "trampoline" to save/restore registers.
-    - [ ] C dispatcher for exceptions and interrupts.
+    - [x] Assembly "trampoline" to save/restore registers.
+    - [x] C dispatcher for exceptions and interrupts.
 - [ ] **Timer Interrupts**: 
     - [ ] Interface with RISC-V CLINT (Core Local Interrupter).
     - [ ] Implement a system heartbeat (ticks).
-- [ ] **External Interrupts**: Setup PLIC (Platform-Level Interrupt Controller).
+- [x] **External Interrupts**: Setup PLIC (Platform-Level Interrupt Controller).
     - [ ] **Keyboard Driver** (Input Buffer & Scancode Processing)
 
 ### Phase 3: Multitasking & Scheduling
