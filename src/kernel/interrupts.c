@@ -84,7 +84,7 @@ void handle_trap()
             kpanic("Reason: Illegal Instruction\n");
             break;
         case 3:
-            kpanic("Reason: Breakpoint (ebreak) %s\n", "woo!");
+            kpanic("Reason: Breakpoint (ebreak)\n");
             break;
         case 4:
             kpanic("Reason: Load Address Misaligned\n");
