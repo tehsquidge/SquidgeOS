@@ -71,7 +71,7 @@ void handle_trap()
         // fault address (if applicable)
         uintptr_t mtval;
         asm volatile("csrr %0, mtval" : "=r"(mtval));
-
+        kprintf("Faulting Address (if applicable): %x\n", mtval);
         switch (cause)
         {
         case 0:
@@ -99,10 +99,9 @@ void handle_trap()
             kpanic("Reason: Store/AMO Access Fault\n");
             break;
         default:
-            break;
             kpanic("Reason: Unknown Exception Code %d\n", cause);
+            break;
         }
-        kprintf("Faulting Address (if applicable): %x\n", mtval);
     }
 }
 
