@@ -14,7 +14,8 @@ typedef struct HeapHeader
 	int is_free;
 	struct HeapHeader *next;
 	struct HeapHeader *prev;
-} HeapHeader;
+	uint64_t _padding;
+} __attribute__((aligned(16))) HeapHeader;
 
 void zero_bss();
 int is_aligned_to(size_t value, size_t size);

@@ -23,7 +23,7 @@ void page_init()
 {
 	kprint("Initialising page allocator...");
 
-	uintptr_t start = ((uintptr_t)_heap_start + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
+	uintptr_t start = align_up((size_t)_heap_start, PAGE_SIZE);
 	uintptr_t end = 0x88000000; // Default QEMU RAM limit
 
 	for (uintptr_t addr = start; addr + PAGE_SIZE <= end; addr += PAGE_SIZE)
@@ -32,9 +32,9 @@ void page_init()
 	}
 	kputs("OK");
 
-	// test_memory_integrity();
-	// test_memory_alignment();
-	// test_memory_stress();
+	test_memory_integrity();
+	test_memory_alignment();
+	test_memory_stress();
 	// page_free((void *)23);
 }
 
@@ -174,11 +174,6 @@ void kcoalesce(HeapHeader *header)
 {
 	if (!header || !header->is_free)
 		return;
-	// jump backward
-	while (header->prev && header->prev->is_free)
-	{
-		header = header->prev;
-	}
 	// merge forward
 	while (header->next && header->next->is_free)
 	{
@@ -197,6 +192,15 @@ void kcoalesce(HeapHeader *header)
 			break;
 		}
 	}
+
+	if (header->prev && header->prev->is_free)
+	{
+		uintptr_t prev_end = (uintptr_t)header->prev + sizeof(HeapHeader) + header->prev->size;
+		if (prev_end == (uintptr_t)header)
+		{
+			kcoalesce(header->prev);
+		}
+	}
 }
 
 void test_memory_integrity()
@@ -204,9 +208,15 @@ void test_memory_integrity()
 	kprint("Running Integrity Test...\n");
 	uint64_t *a = (uint64_t *)kmalloc(16);
 	uint64_t *b = (uint64_t *)kmalloc(16);
+	uint64_t *c = (uint64_t *)kmalloc(512);
+	uint64_t *d = (uint64_t *)kmalloc(2048);
+	uint64_t *e = (uint64_t *)kmalloc(1024);
+	uint64_t *f = (uint64_t *)kmalloc(2048);
 
 	*a = 0x1122334455667788;
 	*b = 0x99AABBCCDDEEFF00;
+
+	heap_stats();
 
 	if (*a == 0x1122334455667788)
 	{
@@ -217,6 +227,8 @@ void test_memory_integrity()
 		kprint("CORRUPTION DETECTED!\n");
 	}
 	kfree(a);
+	kfree(f);
+	heap_stats();
 	kfree(b);
 }
 
