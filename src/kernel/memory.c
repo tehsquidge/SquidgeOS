@@ -31,12 +31,34 @@ void page_init()
 		page_free((void *)addr);
 	}
 	kputs("OK");
+
+	// test_memory_integrity();
+	// test_memory_alignment();
+	// test_memory_stress();
+	// page_free((void *)23);
+}
+
+int is_aligned_to(size_t value, size_t size)
+{
+	return value % size == 0;
+}
+
+size_t align_up(size_t value, size_t size)
+{
+	return (value + size - 1) & ~(size - 1);
+}
+
+size_t align_down(size_t value, size_t size)
+{
+	return value & ~(size - 1);
 }
 
 void page_free(void *addr)
 {
 	if (addr == NULL)
 		return;
+	if (!is_aligned_to((size_t)addr, PAGE_SIZE))
+		kpanic("page_free: address not aligned to PAGE_SIZE: %p", addr);
 
 	struct Page *p = (struct Page *)addr;
 	p->next = free_list;
@@ -63,8 +85,7 @@ void *kmalloc(size_t size)
 	if (size == 0)
 		return NULL;
 
-	// Align size to 8 bytes
-	size = (size + 7) & ~7;
+	size = align_up(size, 8);
 
 	if (heap_free_list == NULL)
 	{

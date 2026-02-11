@@ -17,6 +17,9 @@ typedef struct HeapHeader
 } HeapHeader;
 
 void zero_bss();
+int is_aligned_to(size_t value, size_t size);
+size_t align_up(size_t value, size_t size);
+size_t align_down(size_t value, size_t size);
 void page_init();
 void page_free(void *addr);
 void *page_alloc();
