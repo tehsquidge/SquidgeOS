@@ -53,6 +53,7 @@ The Squidge Kernel is a from-scratch operating system project designed to explor
 - [ ] **Sv39 Paging**: 
     - [ ] Walk the 3-level page table structure.
     - [ ] Map/Unmap functions for virtual addresses.
+    - [ ] Multi Paging
 - [ ] **Kernel/User Separation**: Isolate kernel memory from user processes.
 - [ ] **Higher Half Kernel**: Remap kernel to upper virtual memory.
 
