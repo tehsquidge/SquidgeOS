@@ -291,6 +291,9 @@ void test_memory_integrity()
 	kfree(f);
 	heap_stats();
 	kfree(b);
+	kfree(c);
+	kfree(d);
+	kfree(e);
 }
 
 void test_memory_alignment()
