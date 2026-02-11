@@ -85,7 +85,7 @@ void *kmalloc(size_t size)
 	if (size == 0)
 		return NULL;
 
-	size = align_up(size, 8);
+	size = align_up(size, 16);
 
 	if (heap_free_list == NULL)
 	{
@@ -114,13 +114,7 @@ void *kmalloc(size_t size)
 		HeapHeader *header = (HeapHeader *)page_alloc();
 		header->size = PAGE_SIZE - sizeof(HeapHeader);
 		header->is_free = 1;
-		header->next = heap_free_list;
-		header->prev = NULL;
-		if (heap_free_list)
-		{
-			heap_free_list->prev = header;
-		}
-		heap_free_list = header;
+		kheap_insert_sorted(header);
 		current = header;
 	}
 
@@ -131,26 +125,7 @@ void *kmalloc(size_t size)
 
 	current->is_free = 0;
 
-	size_t min_split_size = sizeof(HeapHeader) + 16;
-	if (current->size >= size + min_split_size)
-	{
-		HeapHeader *new_header = (HeapHeader *)((uint8_t *)current + sizeof(HeapHeader) + size);
-		if ((uintptr_t)new_header < 0x80000000 || (uintptr_t)new_header > 0x88000000)
-		{
-			kpanic("Splitting created invalid pointer: %x!", (uint64_t)new_header);
-		}
-		new_header->size = current->size - size - sizeof(HeapHeader);
-		new_header->is_free = 1;
-
-		new_header->next = current->next;
-		new_header->prev = current;
-		if (current->next)
-		{
-			current->next->prev = new_header;
-		}
-		current->size = size;
-		current->next = new_header;
-	}
+	kheap_split(current, size);
 
 	return (void *)((char *)current + sizeof(HeapHeader));
 }
@@ -167,13 +142,57 @@ void kfree(void *ptr)
 	}
 	header->is_free = 1;
 
-	kcoalesce(header);
+	HeapHeader *final_block = kcoalesce(header);
+	uintptr_t block_start = (uintptr_t)final_block;
+	uintptr_t block_end = block_start + sizeof(HeapHeader) + final_block->size;
+	uintptr_t first_page = align_up((uintptr_t)block_start + sizeof(HeapHeader), PAGE_SIZE);
+	uintptr_t last_page = align_down((uintptr_t)block_end, PAGE_SIZE);
+
+	if (first_page < last_page)
+	{
+		if (block_start < first_page)
+		{
+			kheap_split(final_block, first_page - block_start - sizeof(HeapHeader));
+			final_block = final_block->next;
+		}
+
+		size_t data_to_free = last_page - (uintptr_t)final_block - sizeof(HeapHeader);
+
+		kheap_split(final_block, data_to_free);
+
+		if (final_block->prev)
+			final_block->prev->next = final_block->next;
+		if (final_block->next)
+			final_block->next->prev = final_block->prev;
+		if (final_block == heap_free_list)
+			heap_free_list = final_block->next;
+
+		for (uintptr_t addr = first_page; addr < last_page; addr += PAGE_SIZE)
+		{
+			page_free((void *)addr);
+		}
+	}
 }
 
-void kcoalesce(HeapHeader *header)
+HeapHeader *kcoalesce(HeapHeader *header)
 {
 	if (!header || !header->is_free)
-		return;
+		return header;
+
+	// walk back
+	while (header->prev && header->prev->is_free)
+	{
+		uintptr_t prev_end = (uintptr_t)header->prev + sizeof(HeapHeader) + header->prev->size;
+		if (prev_end == (uintptr_t)header)
+		{
+			header = header->prev;
+		}
+		else
+		{
+			break;
+		}
+	}
+
 	// merge forward
 	while (header->next && header->next->is_free)
 	{
@@ -192,15 +211,57 @@ void kcoalesce(HeapHeader *header)
 			break;
 		}
 	}
+	return header;
+}
 
-	if (header->prev && header->prev->is_free)
+void kheap_split(HeapHeader *header, size_t size)
+{
+	size = align_up(size, 16);
+	size_t min_split_size = sizeof(HeapHeader) + 16;
+	if (header->size >= size + min_split_size)
 	{
-		uintptr_t prev_end = (uintptr_t)header->prev + sizeof(HeapHeader) + header->prev->size;
-		if (prev_end == (uintptr_t)header)
+		HeapHeader *new_header = (HeapHeader *)((uint8_t *)header + sizeof(HeapHeader) + size);
+		if ((uintptr_t)new_header < 0x80000000 || (uintptr_t)new_header > 0x88000000)
 		{
-			kcoalesce(header->prev);
+			kpanic("Splitting created invalid pointer: %x!", (uint64_t)new_header);
 		}
+		new_header->size = header->size - size - sizeof(HeapHeader);
+		new_header->is_free = 1;
+
+		new_header->next = header->next;
+		new_header->prev = header;
+		if (header->next)
+		{
+			header->next->prev = new_header;
+		}
+		header->size = size;
+		header->next = new_header;
 	}
+}
+
+void kheap_insert_sorted(HeapHeader *new_block)
+{
+	if (heap_free_list == NULL || (uintptr_t)new_block < (uintptr_t)heap_free_list)
+	{
+		new_block->next = heap_free_list;
+		if (heap_free_list)
+			heap_free_list->prev = new_block;
+		heap_free_list = new_block;
+		new_block->prev = NULL;
+		return;
+	}
+
+	HeapHeader *curr = heap_free_list;
+	while (curr->next != NULL && (uintptr_t)curr->next < (uintptr_t)new_block)
+	{
+		curr = curr->next;
+	}
+
+	new_block->next = curr->next;
+	new_block->prev = curr;
+	if (curr->next)
+		curr->next->prev = new_block;
+	curr->next = new_block;
 }
 
 void test_memory_integrity()
