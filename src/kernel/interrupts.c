@@ -24,6 +24,7 @@ void interrupt_init()
 
 void kpanic(const char *reason, ...)
 {
+    asm volatile("csrci mstatus, 8"); // Disable MIE (Machine Interrupt Enable)
     va_list args;
 	va_start(args, reason);
     kputs("\n!!! PANIC !!!\n");
@@ -50,7 +51,7 @@ void kpanic_force()
     }
 }
 
-void handle_trap()
+void handle_trap(trap_frame_t *registers)
 {
     // Read the 'mcause' register to see WHY we trapped
     unsigned long cause;
@@ -60,9 +61,10 @@ void handle_trap()
     // For 64-bit RISC-V, the bit is 63
     int is_interrupt = (cause >> 63) & 1;
 
+    unsigned long code = cause & 0xfff;
+
     if (is_interrupt)
     {
-        unsigned long code = cause & 0xfff;
         handle_interrupt(code);
         return;
     }
@@ -71,7 +73,9 @@ void handle_trap()
         // fault address (if applicable)
         uintptr_t mtval;
         asm volatile("csrr %0, mtval" : "=r"(mtval));
-        kprintf("Faulting Address (if applicable): %x\n", mtval);
+
+        kprintf("\n[EXCEPTION] Code: %d | Instruction: %x | Fault Address: %x\n", code, registers->mepc, mtval);
+
         switch (cause)
         {
         case 0:

@@ -4,11 +4,10 @@
 .global trap_entry
 
 trap_entry:
-    # 1. Create space on the stack for 32 registers (32 * 8 = 256 bytes)
+    # Create space on the stack for 32 registers (32 * 8 = 256 bytes)
     addi sp, sp, -256
 
-    # 2. Save all General Purpose Registers (GPRs)
-    # We don't save x0 (zero) because it's always zero
+    # Save all General Purpose Registers (GPRs)
     sd ra, 0(sp)
     sd gp, 8(sp)
     sd tp, 16(sp)
@@ -40,11 +39,19 @@ trap_entry:
     sd t5, 224(sp)
     sd t6, 232(sp)
 
-    # 3. Call your C handler
-    # The CPU already put the cause in 'mcause', so C can read it
+    # Save mepc to the stack (using offset 240)
+    csrr t0, mepc
+    sd t0, 240(sp)
+
+    # Call trap handler
+    mv a0, sp # put the stack pointer to the first arg
     call handle_trap
 
-    # 4. Restore all GPRs
+    # restore mepc
+    ld t0, 240(sp)
+    csrw mepc, t0
+
+    # Restore all GPRs
     ld ra, 0(sp)
     ld gp, 8(sp)
     ld tp, 16(sp)
@@ -76,8 +83,8 @@ trap_entry:
     ld t5, 224(sp)
     ld t6, 232(sp)
 
-    # 5. Shrink the stack back
+    # Shrink the stack back
     addi sp, sp, 256
 
-    # 6. Return from Machine-mode trap
+    # Return from Machine-mode trap
     mret
