@@ -8,14 +8,13 @@
 
 void kmain()
 {
-    kputs("----------------------");
-    kprintf("Hello, from %s!", "SquidgeOS");
-    kputs("----------------------");
-    knewline();
+    zero_bss();
     plic_init();
     uart_init();
     page_init();
     interrupt_init();
-
-    kpanic_force();
+    kputs("----------------------");
+    kprintf("Hello, from %s!", "SquidgeOS");
+    kputs("----------------------");
+    knewline();
 }

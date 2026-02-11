@@ -16,6 +16,7 @@ typedef struct HeapHeader
 	struct HeapHeader *prev;
 } HeapHeader;
 
+void zero_bss();
 void page_init();
 void page_free(void *addr);
 void *page_alloc();

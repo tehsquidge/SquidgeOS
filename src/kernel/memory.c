@@ -2,16 +2,27 @@
 #include <stddef.h>
 #include "drivers/uart.h"
 #include "memory.h"
+#include "lib/string.h"
 #include "interrupts.h"
 
 static struct Page *free_list = NULL;
 
 HeapHeader *heap_free_list;
-extern uint8_t _heap_start[]; // named in the linker script
+
+// named in the linker script
+extern uint8_t _heap_start[];
+extern uint8_t _bss_start[];
+extern uint8_t _bss_end[];
+
+void zero_bss()
+{
+	memset(_bss_start, 0, (size_t)_bss_end - (size_t)_bss_start);
+}
 
 void page_init()
 {
 	kprint("Initialising page allocator...");
+
 	uintptr_t start = ((uintptr_t)_heap_start + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
 	uintptr_t end = 0x88000000; // Default QEMU RAM limit
 
