@@ -53,10 +53,7 @@ void *page_alloc()
 	free_list = free_list->next;
 
 	// zero out the page
-	for (int i = 0; i < (PAGE_SIZE); i++)
-	{
-		((uint8_t *)p)[i] = 0;
-	}
+	memset(p, 0, PAGE_SIZE);
 
 	return (void *)p;
 }
@@ -119,7 +116,7 @@ void *kmalloc(size_t size)
 		HeapHeader *new_header = (HeapHeader *)((uint8_t *)current + sizeof(HeapHeader) + size);
 		if ((uintptr_t)new_header < 0x80000000 || (uintptr_t)new_header > 0x88000000)
 		{
-			kpanic("Splitting created invalid pointer: %x!", (uint32_t)new_header);
+			kpanic("Splitting created invalid pointer: %x!", (uint64_t)new_header);
 		}
 		new_header->size = current->size - size - sizeof(HeapHeader);
 		new_header->is_free = 1;
