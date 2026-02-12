@@ -53,8 +53,7 @@ size_t align_down(size_t value, size_t size)
 	return value & ~(size - 1);
 }
 
-void page_free(void *addr)
-{
+void page_free(void *addr){
 	if (addr == NULL)
 		return;
 	if (!is_aligned_to((size_t)addr, PAGE_SIZE))
@@ -65,7 +64,7 @@ void page_free(void *addr)
 	free_list = p;
 }
 
-void *page_alloc()
+HeapHeader *page_alloc()
 {
 	if (free_list == NULL)
 	{
@@ -77,7 +76,14 @@ void *page_alloc()
 	// zero out the page
 	memset(p, 0, PAGE_SIZE);
 
-	return (void *)p;
+	HeapHeader *header = (HeapHeader *)p;
+
+	header->size = PAGE_SIZE - sizeof(HeapHeader);
+	header->is_free = 1;
+	header->next = NULL;
+	header->prev = NULL;
+
+	return header;
 }
 
 void *kmalloc(size_t size)
@@ -90,12 +96,7 @@ void *kmalloc(size_t size)
 	if (heap_free_list == NULL)
 	{
 		HeapHeader *header = (HeapHeader *)page_alloc();
-		header->size = PAGE_SIZE - sizeof(HeapHeader);
-		header->is_free = 1;
-		header->next = NULL;
-		header->prev = NULL;
-
-		heap_free_list = header;
+		kheap_insert_sorted(header);
 	}
 
 	HeapHeader *current = heap_free_list;
@@ -112,8 +113,6 @@ void *kmalloc(size_t size)
 	if (current == NULL)
 	{
 		HeapHeader *header = (HeapHeader *)page_alloc();
-		header->size = PAGE_SIZE - sizeof(HeapHeader);
-		header->is_free = 1;
 		kheap_insert_sorted(header);
 		current = header;
 	}
@@ -170,6 +169,14 @@ void kfree(void *ptr)
 		for (uintptr_t addr = first_page; addr < last_page; addr += PAGE_SIZE)
 		{
 			page_free((void *)addr);
+		}
+
+	}
+	else
+	{
+		if (final_block->prev == NULL && final_block->next == NULL && final_block != heap_free_list)
+		{
+			kheap_insert_sorted(final_block);
 		}
 	}
 }

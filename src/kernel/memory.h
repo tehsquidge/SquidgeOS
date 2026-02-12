@@ -23,7 +23,7 @@ size_t align_up(size_t value, size_t size);
 size_t align_down(size_t value, size_t size);
 void page_init();
 void page_free(void *addr);
-void *page_alloc();
+HeapHeader *page_alloc();
 void *kmalloc(size_t size);
 void kheap_split(HeapHeader *header, size_t size);
 void kheap_insert_sorted(HeapHeader *new_block);
