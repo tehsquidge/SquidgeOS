@@ -137,6 +137,7 @@ void kprintf_internal(const char *format, va_list args)
 		if (*p == '%')
 		{
 			p++;
+			if(*p == '\0') break;
 			switch (*p)
 			{
 			case 'c':
@@ -148,6 +149,7 @@ void kprintf_internal(const char *format, va_list args)
 			case 's':
 			{
 				char *s = va_arg(args, char *);
+				if (!s) s = "(null)";
 				kprint(s);
 				break;
 			}
@@ -157,6 +159,12 @@ void kprintf_internal(const char *format, va_list args)
 				kprint_int(d);
 				break;
 			}
+	        case 'u':
+			{ 
+				unsigned int u = va_arg(args, unsigned int);
+				kprint_int((int)u);
+				break;
+        	}
 			case 'f':
 			{
 				double f = va_arg(args, double);
@@ -166,7 +174,11 @@ void kprintf_internal(const char *format, va_list args)
 			case 'x': // Hex
 			case 'p': // Pointer
 			{
-				uint64_t x = va_arg(args, uint64_t);
+				#if UINTPTR_MAX == 0xffffffffULL
+					unsigned int x = va_arg(args, unsigned int);
+				#else
+					uint64_t x = va_arg(args, uint64_t);
+				#endif
 				kprint_hex(x);
 				break;
 			}
