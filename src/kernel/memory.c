@@ -14,6 +14,9 @@ extern uint8_t _heap_start[];
 extern uint8_t _bss_start[];
 extern uint8_t _bss_end[];
 
+uintptr_t heap_start;
+const uintptr_t heap_end = 0x88000000; // Default QEMU RAM limit
+
 void zero_bss()
 {
 	memset(_bss_start, 0, (size_t)_bss_end - (size_t)_bss_start);
@@ -23,10 +26,9 @@ void page_init()
 {
 	kprint("Initialising page allocator...");
 
-	uintptr_t start = align_up((size_t)_heap_start, PAGE_SIZE);
-	uintptr_t end = 0x88000000; // Default QEMU RAM limit
+	heap_start = align_up((size_t)_heap_start, PAGE_SIZE);
 
-	for (uintptr_t addr = start; addr + PAGE_SIZE <= end; addr += PAGE_SIZE)
+	for (uintptr_t addr = heap_start; addr + PAGE_SIZE <= heap_end; addr += PAGE_SIZE)
 	{
 		page_free((void *)addr);
 	}
@@ -224,11 +226,12 @@ HeapHeader *kcoalesce(HeapHeader *header)
 void kheap_split(HeapHeader *header, size_t size)
 {
 	size = align_up(size, 16);
-	size_t min_split_size = sizeof(HeapHeader) + 16;
+	size_t min_split_size = sizeof(HeapHeader) + MIN_HEAP_CHUNK_SIZE;
+
 	if (header->size >= size + min_split_size)
 	{
 		HeapHeader *new_header = (HeapHeader *)((uint8_t *)header + sizeof(HeapHeader) + size);
-		if ((uintptr_t)new_header < 0x80000000 || (uintptr_t)new_header > 0x88000000)
+		if ((uintptr_t)new_header < heap_start || (uintptr_t)new_header > heap_end)
 		{
 			kpanic("Splitting created invalid pointer: %x!", (uint64_t)new_header);
 		}

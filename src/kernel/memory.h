@@ -2,6 +2,7 @@
 #define KMEMORY_H
 
 #define PAGE_SIZE 4096
+#define MIN_HEAP_CHUNK_SIZE 16U
 
 typedef struct Page
 {
