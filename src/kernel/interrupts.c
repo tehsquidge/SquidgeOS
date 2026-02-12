@@ -116,7 +116,7 @@ void handle_interrupt(unsigned long code)
     case 7:
         break; // timer Interrupt. Ignoring for now.
     case 11:
-        volatile uint32_t *claim_reg = (uint32_t *)PLIC_CLAIM_COMPLETE;
+        volatile uint32_t *claim_reg = (uint32_t *)PLIC_CLAIM(0);
         uint32_t irq = *claim_reg;
         if (irq == 10)
         {

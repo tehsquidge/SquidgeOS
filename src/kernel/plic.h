@@ -2,7 +2,6 @@
 #define PLIC_H
 
 #define PLIC_BASE 0x0c000000UL
-#define PLIC_CLAIM_COMPLETE 0x0c200004
 
 // Priorities: 4 bytes per IRQ (IRQ 0 is reserved/null)
 #define PLIC_PRIORITY(irq) ((volatile uint32_t *)(PLIC_BASE + (irq) * 4))
