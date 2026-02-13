@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include "drivers/uart.h"
 #include "memory.h"
@@ -37,6 +38,7 @@ void page_init()
 	test_memory_integrity();
 	test_memory_alignment();
 	test_memory_stress();
+	test_memory_reuse();
 	// page_free((void *)23);
 }
 
@@ -142,6 +144,8 @@ void kfree(void *ptr)
 		kpanic("Double free detected!");
 	}
 	header->is_free = 1;
+
+	memset(ptr,0,header->size);
 
 	HeapHeader *final_block = kcoalesce(header);
 	uintptr_t block_start = (uintptr_t)final_block;
@@ -304,6 +308,48 @@ void test_memory_integrity()
 	kfree(c);
 	kfree(d);
 	kfree(e);
+}
+
+void test_memory_reuse()
+{
+    kprint("Running Reuse Test...\n");
+
+    uint8_t *big = (uint8_t *)kmalloc(256);
+    if (!big) {
+        kprint("Allocation failed – aborting reuse test.\n");
+        return;
+    }
+
+    for (size_t i = 0; i < 256; ++i) {
+        big[i] = 0xAA;
+    }
+
+    kfree(big);
+    heap_stats();
+
+    uint8_t *small = (uint8_t *)kmalloc(32);
+    if (!small) {
+        kprint("Second allocation failed – aborting reuse test.\n");
+        return;
+    }
+
+    bool dirty = false;
+    for (size_t i = 0; i < 32; ++i) {
+        if (small[i] != 0) {
+			kprintf("bad value %x", small[i]);
+            dirty = true;
+            break;
+        }
+    }
+
+    if (dirty) {
+        kprint("FAIL: Reused block contains leftover data!\n");
+    } else {
+        kprint("PASS: Reused block is clean.\n");
+    }
+
+    kfree(small);
+    heap_stats();
 }
 
 void test_memory_alignment()

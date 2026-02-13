@@ -30,6 +30,7 @@ void kheap_split(HeapHeader *header, size_t size);
 void kheap_insert_sorted(HeapHeader *new_block);
 void kfree(void *ptr);
 HeapHeader *kcoalesce(HeapHeader *header);
+void test_memory_reuse();
 void test_memory_integrity();
 void test_memory_alignment();
 void test_memory_stress();
