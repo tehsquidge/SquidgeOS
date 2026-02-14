@@ -1,6 +1,16 @@
 #ifndef PANIC_H
 #define PANIC_H
 
+#define MSTATUS 0x300
+#define MIE 0x304
+#define MSTATUS_BIT_MIE 3
+#define MIE_BIT_MTIE 7
+#define MIE_BIT_MEIE 11
+
+#define CLINT_BASE 0x02000000UL
+#define CLINT_MTIME     (CLINT_BASE + 0xBFF8UL)
+#define CLINT_MTIMECMP(h)   (CLINT_BASE + 0x4000UL + (8UL * (h)))
+
 
 // This should match the order of registers in traps.S
 typedef struct {

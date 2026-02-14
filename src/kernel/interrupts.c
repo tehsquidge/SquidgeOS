@@ -11,13 +11,14 @@ void interrupt_init()
 {
     kprint("Initialising Interrupts...");
     uint64_t mstatus_val;
+
     asm volatile("csrr %0, mstatus" : "=r"(mstatus_val));
     mstatus_val |= (1 << MSTATUS_BIT_MIE);
     asm volatile("csrw mstatus, %0" ::"r"(mstatus_val));
 
     uint64_t mie_val;
     asm volatile("csrr %0, mie" : "=r"(mie_val));
-    mie_val |= (1 << MIE_BIT_MEIE); //|(1 << MIE_BIT_MTIE);
+    mie_val |= (1 << MIE_BIT_MEIE) | (1 << MIE_BIT_MTIE);
     asm volatile("csrw mie, %0" ::"r"(mie_val));
     kputs("OK");
 }
@@ -114,7 +115,11 @@ void handle_interrupt(unsigned long code)
     switch (code)
     {
     case 7:
-        break; // timer Interrupt. Ignoring for now.
+        static volatile uint64_t *mtime = (uint64_t *)CLINT_MTIME;
+        static volatile uint64_t *mtimecmp = (uint64_t *)CLINT_MTIMECMP(0);
+        *mtimecmp = *mtime + 100000;
+
+        break;
     case 11:
         volatile uint32_t *claim_reg = (uint32_t *)PLIC_CLAIM(0);
         uint32_t irq = *claim_reg;
